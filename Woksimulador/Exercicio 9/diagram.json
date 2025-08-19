@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "author": "miguel",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bb1",
+      "top": -13,
+      "left": 61.8,
+      "rotate": 180,
+      "attrs": {}
+    },
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 115.8, "left": 450.6, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": 37.1, "left": 230.2, "attrs": {} },
+    { "type": "wokwi-rgb-led", "id": "rgb1", "top": 4, "left": 97.1, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 80.2,
+      "left": 104.75,
+      "rotate": 270,
+      "attrs": { "value": "220000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 80.2,
+      "left": 95.15,
+      "rotate": 270,
+      "attrs": { "value": "220000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": 80.2,
+      "left": 75.95,
+      "rotate": 270,
+      "attrs": { "value": "220000" }
+    }
+  ],
+  "connections": [
+    [ "bb1:11t.d", "uno:A0", "green", [ "v0" ] ],
+    [ "uno:5V", "bb1:tp.1", "red", [ "v-124.9", "h-255.4" ] ],
+    [ "bb1:tn.1", "uno:GND.2", "green", [ "v0" ] ],
+    [ "bb1:10t.d", "bb1:tp.7", "green", [ "v0" ] ],
+    [ "bb1:12t.d", "bb1:tn.10", "green", [ "v0" ] ],
+    [ "pot1:GND", "bb1:12t.e", "", [ "$bb" ] ],
+    [ "pot1:SIG", "bb1:11t.e", "", [ "$bb" ] ],
+    [ "pot1:VCC", "bb1:10t.e", "", [ "$bb" ] ],
+    [ "rgb1:R", "bb1:28b.i", "", [ "$bb" ] ],
+    [ "rgb1:COM", "bb1:27b.h", "", [ "$bb" ] ],
+    [ "rgb1:G", "bb1:26b.i", "", [ "$bb" ] ],
+    [ "rgb1:B", "bb1:25b.i", "", [ "$bb" ] ],
+    [ "bb1:27b.f", "bb1:tp.22", "green", [ "v0" ] ],
+    [ "r1:1", "bb1:25t.d", "", [ "$bb" ] ],
+    [ "r1:2", "bb1:25b.h", "", [ "$bb" ] ],
+    [ "r2:1", "bb1:26t.d", "", [ "$bb" ] ],
+    [ "r2:2", "bb1:26b.h", "", [ "$bb" ] ],
+    [ "r3:1", "bb1:28t.d", "", [ "$bb" ] ],
+    [ "r3:2", "bb1:28b.h", "", [ "$bb" ] ],
+    [ "bb1:25t.c", "uno:11", "green", [ "v0" ] ],
+    [ "bb1:26t.c", "uno:10", "green", [ "v0" ] ],
+    [ "bb1:28t.c", "uno:9", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
