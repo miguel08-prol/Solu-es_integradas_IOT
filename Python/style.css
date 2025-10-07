@@ -1,0 +1,225 @@
+/* Importa uma fonte do Google Fonts para um visual mais moderno */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #4CAF50; /* Verde principal */
+    --secondary-color: #f44336; /* Vermelho principal */
+    --text-color: #333;
+    --background-light: #f4f6f9;
+    --background-dark: #2c3e50;
+    --card-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--background-light), #e0e4eb);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Garante que o body ocupa a altura total da viewport */
+    margin: 0;
+    padding: 30px 20px;
+    box-sizing: border-box; /* Inclui padding e border no cálculo da largura/altura */
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 16px var(--shadow-light);
+    max-width: 800px;
+    width: 100%;
+}
+
+header h1 {
+    color: var(--background-dark);
+    margin-bottom: 10px;
+    font-size: 2.5em; /* Tamanho maior para o título */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Espaço entre o ícone e o texto */
+}
+
+header h1 .fas {
+    color: var(--primary-color);
+}
+
+header p {
+    font-size: 1.1em;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Wrapper dos cartões de LED */
+.controls-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* Mais espaço entre os cards */
+    flex-wrap: wrap; /* Quebra de linha para telas menores */
+    width: 100%;
+    max-width: 1000px; /* Limita a largura máxima para não esticar demais */
+    margin-bottom: 50px;
+}
+
+/* Cartão individual do LED */
+.led-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 6px 15px var(--shadow-light);
+    padding: 30px;
+    width: 280px; /* Largura fixa para os cards */
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Efeito hover */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.led-card:hover {
+    transform: translateY(-5px); /* Eleva o card no hover */
+    box-shadow: 0 10px 25px var(--shadow-hover);
+}
+
+.led-card h3 {
+    color: var(--background-dark);
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    display: flex;
+    flex-direction: column; /* Coloca o nome do LED abaixo do número */
+    align-items: center;
+}
+
+.led-card .led-name {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Indicador visual do LED */
+.led-indicator {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Faz um círculo */
+    background-color: #bdbdbd; /* Cor padrão (desligado) */
+    border: 3px solid #757575;
+    margin-bottom: 30px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Cores quando o LED está ligado */
+.led-indicator.active.green-led {
+    background-color: #90ee90; /* Verde claro */
+    box-shadow: 0 0 20px #90ee90, inset 0 0 10px rgba(255, 255, 255, 0.5); /* Efeito de brilho */
+    border-color: var(--primary-color);
+}
+
+.led-indicator.active.red-led {
+    background-color: #ff6347; /* Tomate */
+    box-shadow: 0 0 20px #ff6347, inset 0 0 10px rgba(255, 255, 255, 0.5);
+    border-color: var(--secondary-color);
+}
+
+/* Botões */
+.actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    flex-wrap: wrap; /* Para botões ficarem um embaixo do outro em telas muito pequenas */
+}
+
+.btn {
+    flex: 1; /* Ocupa o espaço disponível igualmente */
+    min-width: 100px; /* Garante uma largura mínima */
+    border: none;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 1.05em;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Espaço entre ícone e texto */
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ligar-btn {
+    background-color: var(--primary-color);
+}
+
+.ligar-btn:hover {
+    background-color: #43a047; /* Verde um pouco mais escuro */
+}
+
+.desligar-btn {
+    background-color: var(--secondary-color);
+}
+
+.desligar-btn:hover {
+    background-color: #e53935; /* Vermelho um pouco mais escuro */
+}
+
+/* Footer */
+footer {
+    margin-top: 60px;
+    padding: 20px;
+    width: 100%;
+    text-align: center;
+    color: #777;
+    font-size: 0.9em;
+}
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+        gap: 10px;
+    }
+    .led-card {
+        width: 100%; /* Cartões ocupam a largura total em telas menores */
+        max-width: 350px; /* Mas não ficam gigantes em tablets */
+    }
+    .controls-wrapper {
+        gap: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        margin-bottom: 30px;
+    }
+    header h1 {
+        font-size: 1.8em;
+    }
+    .led-card {
+        padding: 25px;
+    }
+    .btn {
+        font-size: 1em;
+        padding: 10px 12px;
+    }
+}
