@@ -9,27 +9,25 @@
 </head>
 <body>
     <header>
-        <h1><i class="fas fa-lightbulb"></i> Controle de LEDs com Arduino</h1>
-        <p>Interface web moderna para ligar e desligar seus LEDs.</p>
-    </header>
-
     <main class="controls-wrapper">
 
+
+
         <div class="led-card" data-led-id="1">
-            <h3>LED 1 <span class="led-name">(Verde)</span></h3>
+            <h3>LED 1(Verde)<span class="led-name">(Verde)</span></h3>
             <div class="led-indicator green-led" id="led-indicator-1"></div>
             <div class="actions">
-                <button class="btn ligar-btn"><i class="fas fa-toggle-on"></i> Ligar</button>
-                <button class="btn desligar-btn"><i class="fas fa-toggle-off"></i> Desligar</button>
+                <button class="on" onclick="controlled('1','on')">Ligar</button>
+                 <button class="off" onclick="controlled('1','off')">Desligar</button>
             </div>
         </div>
 
         <div class="led-card" data-led-id="2">
-            <h3>LED 2 <span class="led-name">(Vermelho)</span></h3>
+            <h3>LED 2(Vermelho)<span class="led-name">(Vermelho)</span></h3>
             <div class="led-indicator red-led" id="led-indicator-2"></div>
             <div class="actions">
-                <button class="btn ligar-btn"><i class="fas fa-toggle-on"></i> Ligar</button>
-                <button class="btn desligar-btn"><i class="fas fa-toggle-off"></i> Desligar</button>
+                <button class="on" onclick="controlled('2','on')">Ligar</button>
+                 <button class="off" onclick="controlled('2','off')">Desligar</button>
             </div>
         </div>
 
@@ -40,5 +38,14 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+    function controlled(ledNum,action) {
+    //A função fetch envia uma requisição para o nosso servidor python
+    fetch('/control/$(ledNum)/$(action)').then(Response => Response.text())
+    .then(data => (console.log(data)
+    )).catch(console.error('Erro',error)
+    )
+    }
+    </script>
 </body>
 </html>
