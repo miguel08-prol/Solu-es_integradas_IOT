@@ -1,107 +1,89 @@
-// Inclui a biblioteca do sensor DHT
 #include "DHT.h"
 
-// Configurações do Sensor DHT
-#define DHTPIN 2       // Pino onde o sensor está conectado
-#define DHTTYPE DHT11  // Define o tipo de sensor (DHT11)
+#define DHTPIN 2
+#define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-// Pinos dos LEDs (3 LEDs - Semáforo)
-const int led1Pin = 7;   // LED Verde
-const int led2Pin = 8;   // LED Amarelo  
-const int led3Pin = 9;   // LED Vermelho
+const int ledNormalPin = 7;      
+const int ledAlertaPin = 8;      
+const int ledGeladeiraPin = 9;   
+
+const int ventiladorPin = 10;    
+const int aquecedorPin = 11;     
+
+// Limites de temperatura
+const float TEMP_ALTA_LIMITE = 28.0;   
+const float TEMP_BAIXA_LIMITE = 18.0;  
+const float GELADEIRA_ALTA = 8.0;      
+const float GELADEIRA_BAIXA = -5.0;    
+
+// Variáveis de estado
+bool alertaTemperatura = false;
+bool alertaGeladeira = false;
+bool ventiladorLigado = false;
+bool aquecedorLigado = false;
+unsigned long ultimoAlerta = 0;
+const unsigned long INTERVALO_ALERTA = 1000; 
 
 void setup() {
-  // Inicia a comunicação serial para o Python
   Serial.begin(9600);
-
-  // Inicia o sensor DHT
   dht.begin();
 
-  // Configura os pinos dos LEDs como saída
-  pinMode(led1Pin, OUTPUT);
-  pinMode(led2Pin, OUTPUT);
-  pinMode(led3Pin, OUTPUT);
+  pinMode(ledNormalPin, OUTPUT);
+  pinMode(ledAlertaPin, OUTPUT);
+  pinMode(ledGeladeiraPin, OUTPUT);
+  pinMode(ventiladorPin, OUTPUT);
+  pinMode(aquecedorPin, OUTPUT);
 
-  // Iniciar com LEDs desligados
-  digitalWrite(led1Pin, LOW);
-  digitalWrite(led2Pin, LOW);
-  digitalWrite(led3Pin, LOW);
+  digitalWrite(ledNormalPin, LOW);
+  digitalWrite(ledAlertaPin, LOW);
+  digitalWrite(ledGeladeiraPin, LOW);
+  digitalWrite(ventiladorPin, LOW);
+  digitalWrite(aquecedorPin, LOW);
   
-  // Aguarda estabilização
   delay(2000);
   
-  Serial.println("SISTEMA_INICIADO");
-  Serial.println("COMANDOS: A,a,B,b,C,c,T,S,R");
+  Serial.println("SISTEMA_RESIDENCIAL_INICIADO");
+  Serial.println("COMANDOS: T,S,R,V,v,A,a");
 }
 
 void loop() {
-  // Verifica se há algum comando vindo do Python
   if (Serial.available() > 0) {
     char command = Serial.read();
-    
-    // Processa o comando imediatamente
     processarComando(command);
   }
+  
+  gerenciarAlertas();
 }
 
 void processarComando(char command) {
   switch (command) {
-    // Controle dos LEDs - VERDE
-    case 'A':
-      digitalWrite(led1Pin, HIGH);
-      digitalWrite(led2Pin, LOW);
-      digitalWrite(led3Pin, LOW);
-      Serial.println("LED_VERDE_ON");
-      break;
-      
-    case 'a':
-      digitalWrite(led1Pin, LOW);
-      Serial.println("LED_VERDE_OFF");
-      break;
-      
-    // Controle dos LEDs - AMARELO  
-    case 'B':
-      digitalWrite(led1Pin, LOW);
-      digitalWrite(led2Pin, HIGH);
-      digitalWrite(led3Pin, LOW);
-      Serial.println("LED_AMARELO_ON");
-      break;
-      
-    case 'b':
-      digitalWrite(led2Pin, LOW);
-      Serial.println("LED_AMARELO_OFF");
-      break;
-      
-    // Controle dos LEDs - VERMELHO
-    case 'C':
-      digitalWrite(led1Pin, LOW);
-      digitalWrite(led2Pin, LOW);
-      digitalWrite(led3Pin, HIGH);
-      Serial.println("LED_VERMELHO_ON");
-      break;
-      
-    case 'c':
-      digitalWrite(led3Pin, LOW);
-      Serial.println("LED_VERMELHO_OFF");
-      break;
-      
-    // Comando para ler temperatura e umidade
-    case 'T':
+    case 'T': 
       lerSensorDHT();
       break;
       
-    // Status dos LEDs
-    case 'S':
-      enviarStatusLEDs();
+    case 'S': 
+      enviarStatusSistema();
       break;
       
-    // Reset todos LEDs
-    case 'R':
-      digitalWrite(led1Pin, LOW);
-      digitalWrite(led2Pin, LOW);
-      digitalWrite(led3Pin, LOW);
-      Serial.println("LEDS_RESETADOS");
+    case 'R': 
+      resetarSistema();
+      break;
+      
+    case 'V': 
+      ligarVentilador();
+      break;
+      
+    case 'v': 
+      desligarVentilador();
+      break;
+      
+    case 'A': 
+      ligarAquecedor();
+      break;
+      
+    case 'a': 
+      desligarAquecedor();
       break;
       
     default:
@@ -111,26 +93,119 @@ void processarComando(char command) {
 }
 
 void lerSensorDHT() {
-  // Lê a temperatura e umidade
   float t = dht.readTemperature();
   float h = dht.readHumidity();
 
-  // Verifica se a leitura falhou
   if (isnan(t) || isnan(h)) {
     Serial.println("ERRO_SENSOR");
-  } else {
-    // Envia os dados de volta para o Python no formato "TEMP;UMID"
-    Serial.print("DADOS:");
-    Serial.print(t, 1);  // 1 casa decimal
-    Serial.print(";");
-    Serial.println(h, 1); // 1 casa decimal
+    return;
+  }
+  
+  processarAlertasTemperatura(t);
+  
+  Serial.print("DADOS:");
+  Serial.print(t, 1);
+  Serial.print(";");
+  Serial.print(h, 1);
+  Serial.print(";");
+  Serial.print(alertaTemperatura ? "ALERTA_TEMP," : "NORMAL_TEMP,");
+  Serial.print(alertaGeladeira ? "ALERTA_GELADEIRA," : "NORMAL_GELADEIRA,");
+  Serial.print(ventiladorLigado ? "VENTILADOR_ON," : "VENTILADOR_OFF,");
+  Serial.println(aquecedorLigado ? "AQUECEDOR_ON" : "AQUECEDOR_OFF");
+}
+
+void processarAlertasTemperatura(float temperatura) {
+  bool alertaAnteriorTemp = alertaTemperatura;
+  bool alertaAnteriorGel = alertaGeladeira;
+  
+  alertaTemperatura = (temperatura > TEMP_ALTA_LIMITE || temperatura < TEMP_BAIXA_LIMITE);
+  alertaGeladeira = (temperatura > GELADEIRA_ALTA || temperatura < GELADEIRA_BAIXA);
+  
+  atualizarLEDs();
+  
+  if (alertaTemperatura != alertaAnteriorTemp) {
+    if (alertaTemperatura) {
+      Serial.println("ALERTA: Temperatura fora dos limites normais!");
+    }
+  }
+  
+  if (alertaGeladeira != alertaAnteriorGel) {
+    if (alertaGeladeira) {
+      Serial.println("ALERTA_CRITICO: Problema na geladeira/freezer!");
+    }
+  }
+  
+  if (temperatura > TEMP_ALTA_LIMITE && !ventiladorLigado) {
+    Serial.println("SUGESTÃO: Ligar ventilador");
+  }
+  if (temperatura < TEMP_BAIXA_LIMITE && !aquecedorLigado) {
+    Serial.println("SUGESTÃO: Ligar aquecedor");
   }
 }
 
-void enviarStatusLEDs() {
-  // Envia o status atual dos LEDs
+void atualizarLEDs() {
+  if (alertaGeladeira) {
+    digitalWrite(ledGeladeiraPin, HIGH);
+    digitalWrite(ledAlertaPin, LOW);
+    digitalWrite(ledNormalPin, LOW);
+  } else if (alertaTemperatura) {
+    digitalWrite(ledAlertaPin, HIGH);
+    digitalWrite(ledGeladeiraPin, LOW);
+    digitalWrite(ledNormalPin, LOW);
+  } else {
+    digitalWrite(ledNormalPin, HIGH);
+    digitalWrite(ledAlertaPin, LOW);
+    digitalWrite(ledGeladeiraPin, LOW);
+  }
+}
+
+void gerenciarAlertas() {
+  unsigned long tempoAtual = millis();
+  
+  if (alertaGeladeira && (tempoAtual - ultimoAlerta >= INTERVALO_ALERTA)) {
+    digitalWrite(ledGeladeiraPin, !digitalRead(ledGeladeiraPin));
+    ultimoAlerta = tempoAtual;
+  }
+}
+
+void enviarStatusSistema() {
   Serial.print("STATUS:");
-  Serial.print(digitalRead(led1Pin) ? "VERDE_ON," : "VERDE_OFF,");
-  Serial.print(digitalRead(led2Pin) ? "AMARELO_ON," : "AMARELO_OFF,");
-  Serial.println(digitalRead(led3Pin) ? "VERMELHO_ON" : "VERMELHO_OFF");
+  Serial.print(digitalRead(ledNormalPin) ? "NORMAL_ON," : "NORMAL_OFF,");
+  Serial.print(digitalRead(ledAlertaPin) ? "ALERTA_ON," : "ALERTA_OFF,");
+  Serial.print(digitalRead(ledGeladeiraPin) ? "GELADEIRA_ON," : "GELADEIRA_OFF,");
+  Serial.print(ventiladorLigado ? "VENTILADOR_ON," : "VENTILADOR_OFF,");
+  Serial.println(aquecedorLigado ? "AQUECEDOR_ON" : "AQUECEDOR_OFF");
+}
+
+void resetarSistema() {
+  alertaTemperatura = false;
+  alertaGeladeira = false;
+  desligarVentilador();
+  desligarAquecedor();
+  atualizarLEDs();
+  Serial.println("SISTEMA_RESETADO");
+}
+
+void ligarVentilador() {
+  ventiladorLigado = true;
+  digitalWrite(ventiladorPin, HIGH);
+  Serial.println("VENTILADOR_LIGADO");
+}
+
+void desligarVentilador() {
+  ventiladorLigado = false;
+  digitalWrite(ventiladorPin, LOW);
+  Serial.println("VENTILADOR_DESLIGADO");
+}
+
+void ligarAquecedor() {
+  aquecedorLigado = true;
+  digitalWrite(aquecedorPin, HIGH);
+  Serial.println("AQUECEDOR_LIGADO");
+}
+
+void desligarAquecedor() {
+  aquecedorLigado = false;
+  digitalWrite(aquecedorPin, LOW);
+  Serial.println("AQUECEDOR_DESLIGADO");
 }

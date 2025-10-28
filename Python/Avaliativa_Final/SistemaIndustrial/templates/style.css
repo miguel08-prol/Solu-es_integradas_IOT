@@ -1,0 +1,51 @@
+/* Status do modo */
+.status {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #FF9800;
+}
+
+.emergency-controls {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.emergency-btn {
+    background-color: #ff5722;
+    padding: 15px 25px;
+    font-size: 1.1em;
+}
+
+.emergency-btn:hover {
+    background-color: #e64a19;
+}
+
+/* Garantir que apenas um LED fique ativo por vez no manual */
+.led-indicator.active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* Cores específicas para cada LED */
+.led-1 .led-indicator.active {
+    background: #4caf50 !important;
+    border-color: #2e7d32 !important;
+}
+
+.led-2 .led-indicator.active {
+    background: #ffeb3b !important;
+    border-color: #fbc02d !important;
+}
+
+.led-3 .led-indicator.active {
+    background: #f44336 !important;
+    border-color: #c62828 !important;
+}
