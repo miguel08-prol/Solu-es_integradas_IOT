@@ -1,0 +1,13 @@
+Queria trazer o ano que mais vendeu.
+Quero saber qual é gênero menos acessado.
+Quero trazer a publicações só da Nintendo
+Quero saber plataforma mais usada par esses lançamentos de dado
+Qual jogo foi mais vendido no ano 2008
+A datas poderia organizadas em ordem, do mais novo para o mais antigo
+Verificar se há duplicatas
+----------------------------------------------------------------------------------
+Calcular o preços de jogos vendidos em cada ano, ou ano selecionado.
+Analisar o jogo que teve menos vendar e entender o motivo pelo qual isso ocorreu. Falta de marketing?
+Se as a vendas continuarem assim de desse jogo ele terá um prejuízos granda onde cairá significamente suas vendas, já outros jogos se manterem o padrão dessas vendas, conseguirão um lucro grande.
+Sugestão, melhora o markting, trazer novos recursos interessantes ao jogos e 
+e publico alvo.
